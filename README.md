@@ -59,3 +59,112 @@ Ps：虚拟环境不是必须的，根据个人情况和习惯使用
 - python manage.py flush -> 清空数据库
 - python manage.py runserver 0.0.0.0:8000 -> 启动开发服务器
 - python manage.py + 回车 可查看更多命令
+
+# 路由
+简单的说，url 就是常说的网址，每个网址代表不同的网页。
+在django中url也称为urlconf
+每个url地址对应一个唯一的views视图函数
+### 哪里存在路由？
+- 根目录项目中的urls.py是根路由，根路由可以集合所有应用路由
+- 每个应用下创建自己的urls.py，这个urlspy属于每个应用的独有路由，通过集成或者说绑定到根路由中进行使用。
+### 路由常用方法，变量与views的绑定
+```
+from django.urls import path, include  //倒入url编写模块
+from django.contrib import admin  //导入admin功能模块
+//urlpatterns: 整个项目的url集合，每个元素代表一条url信息
+path(‘admin/’, admin.site.urls)  设置admin的url，’admin/’代表uri地址，即http://127.0.0.1:8000/admin/，
+//admin后边的斜杠为路径的分隔符，admin.site.urls 是url对应的视图函数
+path(‘’, include(‘app.urls’))  //如果url为空即代表为网站的域名，即127.0.0.1:8000,通常为网站的首页，include的是将应用中的urls包含进来
+```
+```
+from app import urls as app_urls
+path(‘’, include(app_urls))
+```
+扩展知识：网址分两部分，domain域名与uri按照上边的地址分别是 127.0.0.1:8000和 admin
+
+1. url中的参数
+    - 在url后边用?开始，键与值用等号连接，每对键值用&号区分，如: http://127.0.0.1:8000/app?name=dewei&age=30
+    - 在路由的参数中用分隔符分开，如: http://127.0.0.1:8000/app/dewei/30
+2. django2的url变量类型
+    - 字符串类型：匹配任何非空字符串，但不包含斜杠，在不指定类型的前提下，默认字符串类型 <str:name>
+    - 整型：匹配0和正整数 <int:age>
+    - slug:   可理解为注释，后缀或附属等概念 <slug: day>
+    - uuid：匹配一个uuid格式的对象 <uuid: uid> 类似xxx-xx-xx
+3. 支持url类型的方法
+    - from django.urls import path 2.0以后新方法
+    - from django.conf.urls import url 2.0以前的方法，不支持参数中的类型，只能通过正则表达的方式进行基本的匹配
+4. django2.0以前url参数匹配简介
+    - url(r'^add/(?P<name>\w+)/(?P<age>\d+)$')
+    - r 非转义原始字符串
+    - w+  匹配1个或多个包括下划线在内的任何字字符:[A-Za-z0-9_]
+    - d+ 匹配1个或多个数字
+5. 为url设置别名
+    - path(‘add’, view_function, name=’add’) 
+    - 别名可以在重定向和模版定义的时候直接用别名替代,在template模版中会使用到
+6. 读取参数
+    - ?形式的参数 -> request.GET.get(参数名)
+    - 以分隔符形式的参数 Django.conf.urls不支持
+    ```python
+    def index(request, 参数名, 参数名):
+               print(参数名)
+    ```
+# 视图
+views是django的mvt中的v部分，主要负责处理用户的请求和生成相应内容，然后在页面或其他类型文档中显示。
+基本写法:
+```djangotemplate
+from django.http import HttpResponse
+def index(request):
+    return HttpResponse(‘hello django!’)
+
+```
+1. 强行将视图分三部分
+    - 用户的请求  request
+    - 对用户请求的逻辑处理 handler
+    - 将处理后的数据返回给用户 response
+2. 用户的请求对象request
+    - 浏览器向服务器发送的请求对象，包含用户信息，请求内容和请求方法
+    - dir(request) 查看 request对象的所有方法
+3. 常用的request对象的方法
+    - request.GET -> 获取url上？形式的参数
+    - request.POST -> 获取post提交的数据
+    - request.path ->请求的路径,比如请求127.0.0.1/test/1,那这个值就是/test/1
+    - request.method -> 请求的方法 get or post 等
+4. 常用的返回对象
+    - HttpResponse 可以直接返回一些字符串内容
+    - from django.http import HttpResponse
+    - render 将数据在模版中渲染并显示
+    - from django.shortcuts import render
+    - JsonResponse 返回一个json类型 通常用于与前端进行ajax交互
+    - from django.http import JsonResponse
+5. 视图面向对象的写法
+    ```python
+    from django.views.generic import View
+    Class Index(View):
+        def get(self, request):
+            return xxx
+    ```
+    Index.as_views 路由处理
+
+# Restful规范 & Http协议
+1. Restful
+Url定位资源，简单来说，通过一个url地址可以让我们知道这个地址所要提供的功能是什么。
+比如说：127.0.0.1/add/user 那么可以看出 我们这个url要做的事情就是 添加一个用户，
+再比如说，127.0.0.1/get/user/1，就可以很轻松的读出来，是 获取一个用户并且这个用户id是1
+归纳一句话：url一切皆资源
+2. Restful常用方法
+    - Get 获取资源时使用  比如我们查看一个网页
+    - Post 提交资源时使用 比如我们注册一个用户的时候
+    - Put 修改资源时时候 比如我们修改自己的用户信息的时候
+    - Delete 删除资源时使用 比如我们注销我们的账号的时候
+3. http协议
+网上应用最为广泛的一种网络协议。所有的www文件都必须遵守这个标准
+4. Http的无状态性
+无状态是指，当浏览器发送请求给服务器的时候，服务器响应客户端请求，但是当同一个浏览器再次给你服务器发送请求的时候，服务器并不知道它就是刚才那个浏览器。
+简单的说，服务器不会记得你，所以就是无状态协议
+5. Http常用状态码
+    - 200 成功
+    - 400 请求错误，一般是参数格式有误的时候出现
+    - 403 禁止访问
+    - 404 没有获取到url地址
+    - 405 方法禁用，比如这个地址指定用get方法，但你用了post，就会有这个提示
+    - 500 服务器异常
