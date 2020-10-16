@@ -1,6 +1,16 @@
 # django_tutorial
 Django入门到进阶-适合Python小白的系统课程
 
+# git使用
+- git init
+- git remote add origin ...
+- git status
+- git pull origin main
+- git add.
+- git commit -m '...'
+- git push origin main
+
+
 # Web的结构
 - 网站的前端：通过用户肉眼看到的网站的布局，内容，对网站的操作的功能，一切可以让用户可以直接接触与操作的部分。
 - 网站的后端：大量的业务逻辑，数据库io，用户不可见，不可直接接触的部分。
