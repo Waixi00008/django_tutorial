@@ -68,6 +68,7 @@ Ps：虚拟环境不是必须的，根据个人情况和习惯使用
 - python manage.py migrate -> 同步到数据库进行更新
 - python manage.py flush -> 清空数据库
 - python manage.py runserver 0.0.0.0:8000 -> 启动开发服务器
+- PYTHONIOENCODING=utf-8 python3 manage.py runserver 中文环境
 - python manage.py + 回车 可查看更多命令
 
 # 路由
