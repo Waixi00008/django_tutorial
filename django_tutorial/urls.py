@@ -16,8 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from app import urls as app_urls
+from get_by_douban import urls as douban_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(app_urls)),
+    path('douban/', include(douban_urls)),
 ]
