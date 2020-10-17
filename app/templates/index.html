@@ -9,5 +9,25 @@
 </head>
 <body>
 hello django template!!! {{name}}
+<table>
+    <thead>
+        <tr>
+            <th>序号</th>
+            <th>书名</th>
+            <th>内容</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in book %}
+        <tr>
+            <td>{{item.id}}</td>
+            <td>{{item.title}}</td>
+            <td>{{item.content}}</td>
+        </tr>
+    {% empty %}
+    没有数据
+    {% endfor %}
+    </tbody>
+</table>
 </body>
 </html>

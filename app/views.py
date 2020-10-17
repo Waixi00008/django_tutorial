@@ -20,4 +20,33 @@ class OO(View):
 
 class Temp(View):
     def get(self,request):
-        return render(request,'index.html',{'name':'waixi','title': 'django templates'})
+        data = {
+            'name': 'waixi',
+            'title': 'django templates',
+            'book': [
+                {
+                    "id":1,
+                    "title":'书1',
+                    "content":"内容1"
+                },{
+                    "id":2,
+                    "title":'书2',
+                    "content":"内容2"
+                },{
+                    "id":3,
+                    "title":'书3',
+                    "content":"内容3"
+                },{
+                    "id":4,
+                    "title":'书4',
+                    "content":"内容4"
+                },{
+                    "id":5,
+                    "title":'书5',
+                    "content":"内容5"
+                },
+            ],
+            'list': []
+        }
+
+        return render(request,'index.html',data)
