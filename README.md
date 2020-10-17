@@ -252,20 +252,68 @@ STATICFILES_DIRS是元组，一定要逗号
        | wordcount      | {{value\|wrodcount}}  | 字符串中单词数                             |
        | timeuntil      | {{value\|timeuntil}}  | 距离当前日期的天数和小时数（未来）         |
        
-   # 自定义过滤器
-   在Django服务器端编写函数，在模版中可以直接调用的过滤器函数
-   1. 在应用下创建templatetags文件夹
-   2. 在文件夹下创建 myfilter.py
-   3. INSTALLED_APPS = ['app.templatetags',]
-        ```
-        from django import template
-        register = template.Library()
-        
-        @register.filter
-        def add_filter(value,args):
-            return value+args
-        ```
-        ```
-        {% load myfilter %}
-        num:{{num|add_filter:10}}
-        ```
+# 自定义过滤器
+在Django服务器端编写函数，在模版中可以直接调用的过滤器函数
+1. 在应用下创建templatetags文件夹
+2. 在文件夹下创建 myfilter.py
+3. INSTALLED_APPS = ['app.templatetags',]
+    ```
+    from django import template
+    register = template.Library()
+    
+    @register.filter
+    def add_filter(value,args):
+        return value+args
+    ```
+    ```
+    {% load myfilter %}
+    num:{{num|add_filter:10}}
+    ```
+   
+# jinja2模板引擎
+安装 
+1. workon Django_venv
+2. pip3 install jinja2
+3. | **过滤器** | **说明**                                   |
+   | ---------- | ------------------------------------------ |
+   | safe       | 渲染时不转义                               |
+   | capitalize | 把值的首字母转换成大写，其他字母转换成小写 |
+   | lower      | 把值转换成小写形式                         |
+   | upper      | 把值转换成大写形式                         |
+   | title      | 把值中每个单词的首字母都转换成大写         |
+   | trim       | 把值的首尾空格去掉                         |
+   | striptags  | 渲染前把值中所有的HTML标签都删掉           |
+
+# django里使用jinja模板
+1. 安装jinja2
+2. settings.py TEMPLATES添加
+    ```
+    {
+        'BACKEND': 'django.template.backends.jinja2.Jinja2',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'environment': 'jinja_app.base_jinja2.environment'
+        },
+    }
+    ```
+3. 新建base_jinja2.py在jinja_app(应用名随意)
+    ```
+    from jinja2 import Environment
+    from django.contrib.staticfiles.storage import staticfiles_storage
+    from django.urls import reverse
+    
+    def environment(**options):
+        env = Environment(**options)
+        env.globals.update({
+            'static': staticfiles_storage.url,
+            'url': reverse
+        })
+        return env
+    ```
