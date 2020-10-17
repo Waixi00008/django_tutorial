@@ -251,3 +251,21 @@ STATICFILES_DIRS是元组，一定要逗号
        | urlize         | {{value\|urlize}}     | 字符串中链接可点击                         |
        | wordcount      | {{value\|wrodcount}}  | 字符串中单词数                             |
        | timeuntil      | {{value\|timeuntil}}  | 距离当前日期的天数和小时数（未来）         |
+       
+   # 自定义过滤器
+   在Django服务器端编写函数，在模版中可以直接调用的过滤器函数
+   1. 在应用下创建templatetags文件夹
+   2. 在文件夹下创建 myfilter.py
+   3. INSTALLED_APPS = ['app.templatetags',]
+        ```
+        from django import template
+        register = template.Library()
+        
+        @register.filter
+        def add_filter(value,args):
+            return value+args
+        ```
+        ```
+        {% load myfilter %}
+        num:{{num|add_filter:10}}
+        ```
