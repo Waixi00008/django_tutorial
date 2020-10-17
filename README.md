@@ -194,7 +194,7 @@ Url定位资源，简单来说，通过一个url地址可以让我们知道这�
         return render(request,'index.html',{'name':'waixi'})
     ```
 4. 内置标签 用{% %}大括号 左右各一个百分号包裹
-    -  | **标签**                          | **介绍**           |
+     - | **标签**                          | **介绍**           |
        | --------------------------------- | ------------------ |
        | {%  for %} {% endfor %}           | 遍历输出的内容     |
        | {% if  %} {% elif %}  {% endif %} | 对变量进行条件判断 |
@@ -204,3 +204,21 @@ Url定位资源，简单来说，通过一个url地址可以让我们知道这�
        | {%  extends base_template%}       | 模版继承           |
        | {%  block data%} {% endblock %}   | 重写父模版的代码   |
        | {%  csrf_token  %}                | 跨域的  密钥       |
+       
+5. for标签模版
+    -  | **变量**            | **说明**                |
+       | ------------------- | ----------------------- |
+       | forloop.counter     | 从1开始计算获取当前索引 |
+       | forloop.counter0    | 从0开始计算获取当前索引 |
+       | forloop.revcounter  | 索引从最大数递减到1     |
+       | forloop.revcounter0 | 索引从最大数递减到0     |
+       | forloop.first       | 当前元素是否是第一个    |
+       | forloop.last        | 当前元素是否是最后一个  |
+       | empty               | 为空的情况              |
+       
+# 静态文件配置
+1. Css 样式文件，Javascript 文件，Image 图片文件等
+2. 项目根目录创建 ‘static’ 与 ‘templates’文件夹同级
+3. STATICFILES_DIRS = (os.path.join(BASE_DIR, ‘static’), )
+STATICFILES_DIRS是元组，一定要逗号
+
