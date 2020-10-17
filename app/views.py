@@ -23,6 +23,8 @@ class Temp(View):
         data = {
             'name': 'waixi',
             'title': 'django templates',
+            'num': 10,
+            'hello': 'hello world',
             'book': [
                 {
                     "id":1,
