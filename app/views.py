@@ -17,3 +17,7 @@ from django.views.generic import View
 class OO(View):
     def get(self,request):
         return HttpResponse("hello 面向对象")
+
+class Temp(View):
+    def get(self,request):
+        return render(request,'index.html',{'name':'waixi','title': 'django templates'})

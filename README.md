@@ -179,3 +179,13 @@ Url定位资源，简单来说，通过一个url地址可以让我们知道这�
     - 404 没有获取到url地址
     - 405 方法禁用，比如这个地址指定用get方法，但你用了post，就会有这个提示
     - 500 服务器异常
+
+# Template模板
+模版可以动态生成Html网页，它包括部分Html代码和一些特殊的语法
+1. Template配置方法
+  - 一般Template模版存放在“templates”目录中
+  - 通过在项目Settings的templates的DIRS列表中添加对应的路径即可，如：os.path.join(BASE_DIR,‘templates’) 
+2. Template与视图的绑定
+```
+
+```
