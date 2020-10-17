@@ -18,10 +18,11 @@ from django.urls import path,include
 from app import urls as app_urls
 from get_by_douban import urls as douban_urls
 from jinja_app import urls as jinja_urls
-
+from mako_app import urls as mako_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(app_urls)),
     path('douban/', include(douban_urls)),
-    path('test/', include(jinja_urls)),
+    path('jinja/test/', include(jinja_urls)),
+    path('mako/test/', include(mako_urls)),
 ]
