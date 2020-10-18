@@ -745,3 +745,52 @@ Redis是一个基于内存的非关系型数据库。他通过key：value的形�
         user = User.get(1)
         return JsonResponse(user)
     ```
+   
+### django中使用mongodb
+1. 启动mongodb服务器
+2. 安装pymongo，mongoengine
+3. 在setting设置mongodb
+    ```
+    from pymongo import MongoClient
+    MONGOCLIENT= MongoClient(host='localhost',port=27017)
+    DB = MONGOCLIENT['django_mongodb_test']
+    ```
+4. 模型 没有也没关系
+    ```
+    from mongoengine import Document,StringField,IntField
+    from django.conf import settings
+    
+    class User(Document):
+        db = settings.MONGOCLIENT['user']
+        name = StringField(required=True,max_length=200)
+        age = IntField(required=True)
+        # 指明连接的数据表名
+        meta = {'collection': 'user'}
+    ```
+5. 视图增删改查
+    - db.user 等同于db = settings.DB['user']
+    - user和上面视图的user没关联
+    - ```
+        from django.http import HttpResponse
+        # from .models import User
+        from django.conf import settings
+        
+        db = settings.DB
+        
+        def insert(request):
+            db.user.insert({'name': 'zhaos', 'age': 23,'www':1});
+            return HttpResponse('增')
+        
+        def update(request):
+            db.user.update({'name': 'zhaos'}, {'$set': {'name': 'waixi'}})
+            return HttpResponse('改')
+        
+        def delete(request):
+            db.user.remove({'name': 'waixi'})
+            return HttpResponse('删')
+        
+        def query(request):
+            users=db.user.find()
+            print(users)
+            return HttpResponse('查')
+        ```

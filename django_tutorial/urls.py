@@ -20,6 +20,7 @@ from get_by_douban import urls as douban_urls
 from jinja_app import urls as jinja_urls
 from mako_app import urls as mako_urls
 from django_sqlalchemy import urls as sqlalchemy_urls
+from mongodb_app import urls as mongodb_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(app_urls)),
@@ -27,4 +28,5 @@ urlpatterns = [
     path('jinja/test/', include(jinja_urls)),
     path('mako/test/', include(mako_urls)),
     path('sqlalchemy/', include(sqlalchemy_urls)),
+    path('mongodb/', include(mongodb_urls)),
 ]

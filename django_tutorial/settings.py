@@ -88,6 +88,10 @@ WSGI_APPLICATION = 'django_tutorial.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+from pymongo import MongoClient
+MONGOCLIENT= MongoClient(host='localhost',port=27017)
+DB = MONGOCLIENT['django_mongodb_test']
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
