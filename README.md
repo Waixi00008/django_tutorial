@@ -417,6 +417,15 @@ python manage.py shell
     - python manage.py makemigrations
     - python manage.py migrate
  - 在视图函数中通过对模型的操作实现目标数据库的读写操作
+    -  ```
+           def update(request):
+            # user = User.objects.get(id=1)
+            # user.info = "修改{}".format(time.time())
+            # user.save()
+        
+            User.objects.filter(id=2).update(age=50)
+            return HttpResponse('改')
+       ```
 
 ### model列方法与属性
 1. from django.db import models
@@ -488,3 +497,73 @@ python manage.py shell
     unique_together = [”day", ”hour"]       # 一条数据day+hour不能于其他数据相同
     index_together = [”username", ”phone"]  # 提高查询效率
     ```
+   
+### 数据库的增删改查
+1. 增 注意有些需要自己写save有些不需要
+    - User.objects.create(xx=xx, xx=xx)
+    - user = User(xx=xx, xx=xx)   user.save()
+    - User.objects.get_or_create(xx=xx, xx=xx)
+    - user = User()  user.xx = xx  user.save()
+2. 查
+    - user = User.objects.get(id=xx) 无法用在update
+    - user = User.object.filter(id=xx) 
+    - Users = User.objects.all()
+3. 改
+    - user.object.update(xx=xx, xx=xx)
+    - user.xx = xx     user.save()
+4. 删
+    - user = User.objects.get(id=xx)
+    - user.delete()
+
+### orm的两种查询方式
+1. 原生sql的查询方法 User.objects.raw(‘select * from user’)
+2. 基于orm方法查询 User.objects.filter(id=xx)
+    - 下边的链式操作方法并不一定要依赖一级方法，大家要灵活运用
+    -  | **方法名**                                                   | **描述**                                   |
+       | ------------------------------------------------------------ | ------------------------------------------ |
+       | User.objects.all()                                           | 返回user表中所有的数据                     |
+       | User.objects.get(**filter)                                   | 返回满足过滤条件的数据(单调，没有则抛异常) |
+       | User.objects.filter(**filter)                                | 返回满足过滤条件的多条数据，没有泽返回空   |
+       | User.objects.all()/filter(). exists()                        | 返回是否有对象，True False                 |
+       | User.objects.all()/filter().count()                          | 返回获取到对象的数量                       |
+       | User.objects.all()/filter(). exclude(**filter)               | 返回的数据中排除满足**filter的             |
+       | User.objects.filter() .distinct(‘age')                       | 返回的对象中通过某个列去重                 |
+       | User.objects.filter(). order_by(‘age’)                       | 返回的对象中通过age排序                    |
+       | dir(User.objects)                                            | 还有更多可能不太常用的方法                 |
+
+3. 属性
+    - | **属性名**  | **描述**                          | **举例**                |
+        | ----------- | --------------------------------- | ----------------------- |
+        | __exact     | sql中like ‘dewei’  的精准搜索情况 | name__exact=‘dewei’     |
+        | __iexact    | 精准搜索且忽略大小写              | name__iexact=‘Dewei’    |
+        | __contains  | 模糊查找  类似 like ‘%dewei%’     | name__contains=‘dewei’  |
+        | __icontains | 模糊查找忽略大小写                | name__icontains=‘Dewei’ |
+        | __gt        | 大于                              | age__gt=18              |
+        | __gte       | 大于等于                          | age__gte=18             |
+        | __lt        | 小于                              | age__lt=33              |
+        | __lte       | 小于等于                          | age__lte=33             |
+        | __isnull    | 是否是空                          | email__isnull=True      |
+
+4. 或查找
+    ```
+    from django.db import @
+    User = User.objects.filter(Q(username='zhangsan')|Q(username='lisi'))
+    ```
+5. 聚合查询
+   -   | **方法名** | **描述** | **举例**                                   |
+        | ---------- | -------- | ------------------------------------------ |
+        | Avg        | 平均值   | User.objects.all() .aggregate(Avg=‘age’)   |
+        | Sum        | 取和     | User.objects.all() .aggregate(Sum=‘age’)   |
+        | Max        | 最大值   | User.objects.all() .aggregate(Max=‘age’)   |
+        | Min        | 最小值   | User.objects.all() .aggregate(Min=‘age’)   |
+        | Count      | 统计数量 | User.objects.all() .aggregate(Count=‘age’) |
+        
+6. 多表查询之反向查询
+当在user表和diary表之间所有关联的时候，通过user模型借助diary关联的条件进行查找user的时候，我们称为反向查询，例如：
+user = User.objects.filter(diary__id=2) 就是说 查找在diary表中 id为2的diary这个列队迎的user的列
+7. 多表查询之查询关联信息
+通过主对象选择需要查找的表对应的related_name,通过value查询具体信息，如下：
+    - user = User.objects.get(pk=1)
+    - user.diary.values(‘content’)  -> 返回id为1用户的diary的content信息
+    - user.diary.count() -> 返回id为1用户的diary关联数量
+    - user.diary 其实就是 Diary模型，我们可以通过它再去调用更多方法，比如 get filter 再去扩展查询
