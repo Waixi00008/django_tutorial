@@ -376,3 +376,115 @@ STATICFILES_DIRS是元组，一定要逗号
     %>
     ${settings.TEMPLATES[0]['DIRS'][0]}
     ```
+   
+# 网络请求图片，跨域问题
+ <meta name="referrer" content="no-referrer">
+ 
+# ORM
+全称：object relational mapping，通过使用它，我们可以直接使用python的方法去使用数据库
+通过把表映射成类，把行作为实例，把字段作为属性，orm在执行对象操作的时候会把对应的操作转换成数据库原生语句的方式来完成数据库开发工作
+### 优点：
+ - 使用简单，通过将数据库语法进行封装，直接使用方法即可操作数据库
+ - 性能好，在通过orm转换成sql的时候是会有一些消耗，但这个消耗其实非常低，在对整体业务提升的角度说，这点消耗可以忽略不计，除非你对于io操作的要求非常的极端
+ - 兼容性好，支持目前市面上多数的关系型数据库，如mysql prestresql salite等
+# django shell的使用
+python manage.py shell
+- In [1]: from django.db import models
+- In [2]: dir(models)
+
+### django设置实现
+ - 在settings.py 中设置数据库信息（需提前在数据库中创建库）
+   ```
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'django_orm_test',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '3306'
+        }
+    }
+    ````
+ - 在应用app的models.py中以类的形式定义模型
+   ```
+    from django.db import models
+    
+    class User(models.Model):
+        name = models.CharField(max_length=20)
+    ```
+ - 通过模型在目标数据库中创建对应的表
+    - python manage.py makemigrations
+    - python manage.py migrate
+ - 在视图函数中通过对模型的操作实现目标数据库的读写操作
+
+### model列方法与属性
+1. from django.db import models
+2. dir(models)
+3. 类型
+   -   | **字段名**                | **描述**          | **例子**                                      |
+       | :------------------------ | :---------------- | --------------------------------------------- |
+       | CharField                 | 字符串类型        | ‘namexxxx’                                    |
+       | TextField                 | 文本类型          | ‘xxxxxxxxxxxx…’                               |
+       | EmailField                | 邮箱类型          | ‘xxx@muke.com’                                |
+       | UrlField                  | 网址类型          | ’http://muke.com’                             |
+       | BooleanField              | 布尔类型(tinyint) | True  False                                   |
+       | NullBooleanField          | 可为空的布尔类型  | None  True False                              |
+       | IntegerField              | 整型              | (-2147483648,  2147483647)                    |
+       | SmallIntegerField         | 短整型            | (-32768,  32767)                              |
+       | BigIntegerField           | 长整型            | (-9223372036854775808,  9223372036854775807), |
+       | PositiveIntegerField      | 正整型            | (0,  2147483647)                              |
+       | PositiveSmallIntegerField | 短正整型          | (0,  32767)                                   |
+       | FloatField                | 浮点类型          | 3.14                                          |
+       | DecimalField              | 十进制小数        | 12345.123123                                  |
+       | DateField                 | 日期类型          | xxxx-xx-xx                                    |
+       | DateTimeField             | 日期类型          | xxxx-xx-xx xx:xx:xx                           |
+       | TimeField                 | 时间类型          | xx:xx:xx (时分秒)                             |
+       | ImageField                | 图片类型          | xxx.jpg                                       |
+       | FileField                 | 文件类型          | 任意文件类型                                  |
+   
+4. 公共属性
+    -  | **属性名**   | **描述**                       | **例子**    | **作用于** |
+       | ------------ | ------------------------------ | ----------- | ---------- |
+       | null         | 值是否设为空                   | True  False |            |
+       | blank        | 值是否可为空                   | True  False |            |
+       | primary_key  | 设置主键                       | True        | 整型       |
+       | auto_now     | 时间自动添加                   | True        | 时间类型   |
+       | auto_now_add | 自动添加时间，但仅在创建的时候 | True        | 时间类型   |
+       | max_length   | 字段长度                       |             | 字符串类型 |
+       | default      | 默认值                         | xxx         |            |
+       | verbose_name | admin中显示的名字              | name        |            |
+       | db_column    | 数据库字段名                   | age         |            |
+       | unique       | 唯一索引                       | True        |            |
+       | db_index     | 普通索引                       | True        |            |
+5. 特殊属性
+    -  | **属性名**     | **描述**                                                | **例子**    | **作用于**             |
+       | -------------- | ------------------------------------------------------- | ----------- | ---------------------- |
+       | max_digits     | 数字中允许的最大位数                                    | 12          | DecimalField           |
+       | decimal_places | 存储的十进制位数                                        | 2           | DecimalField           |
+       | width_field    | 图片宽(可不传)                                          | 1024        | ImageField             |
+       | height_field   | 图片高(可不传)                                          | 576         | ImageField             |
+       | upload_to      | 保存上传文件的本地文件路径，该路径由 MEDIA_ROOT  中设置 | ‘/xx/xx.xx’ | ImageField,  FileField |
+
+6. 表关联方法
+   -   | **字段名**      | **描述** | **例子** |
+       | --------------- | ------- | -------- |
+       | ForeignKey      | 一对多   |          |
+       | OneToOneField   | 一对一   |          |
+       | ManyToManyField | 多对多   |          |
+       
+   -    | **属性名**   | **描述**         | **例子**                                     |
+        | ------------ | ---------------- | -------------------------------------------- |
+        | related_name | 关联表的名       | related_name=‘profile’                       |
+        | on_delete    | 外键的删除的对策 | on_delete=models.SET_NULL,CASCADE,PROTECT |
+
+### 数据库的表关系与联合索引的创建
+1. 一对一：仅在两个表中，表1的a这一行的数据和表2的a这行数据有联系，且表2的a行数据也只会和表1的a行有关系
+2. 一对多：表1的第a行数据，和多个表的多行数据都会有所关系，而多个表中都行数据与表1的第a行有所关系，且只和表1的第a行有所关联
+3. 表1中的第a行数据可以与表2中的一行或多行相互联系，表2中的a行也可以和表中的一行或多行相互关联
+4. 联合索引：一个表中 有两个字段要合并使用一个索引
+    ```
+    class Meta:
+    unique_together = [”day", ”hour"]       # 一条数据day+hour不能于其他数据相同
+    index_together = [”username", ”phone"]  # 提高查询效率
+    ```
