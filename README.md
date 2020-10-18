@@ -567,3 +567,98 @@ user = User.objects.filter(diary__id=2) 就是说 查找在diary表中 id为2的
     - user.diary.values(‘content’)  -> 返回id为1用户的diary的content信息
     - user.diary.count() -> 返回id为1用户的diary关联数量
     - user.diary 其实就是 Diary模型，我们可以通过它再去调用更多方法，比如 get filter 再去扩展查询
+
+### 在django中使用sqlalchemy
+安装sqlalchemy,pymysql依赖 
+如果pycharm不能找到pymysql,就在pycharm安装插件pymysql
+
+1. sqlalchemy常用基础模块
+   - declarative_base 初始化sql与模块化的基础模块 Base = declarative_base()
+   - create_engine 数据库引擎，链接数据库 engine = create_engine('mysql+pymysql://root:@localhost:3306/sqlalchemy_test')
+   - sessionmaker 数据插入查询的模块 db_session = sessionmaker(bind=engine)()
+2. sqlalchemy常用类型
+    -  | **类型名**               | **python****类型** | **描述**                     |
+       | ------------------------ | ------------------ | ---------------------------- |
+       | Integer                  | int                | 常规整型  通常为32位         |
+       | SmallInteger             | int                | 短整型，通常为16位           |
+       | BigInteger               | int或long          | 精度不受限整型               |
+       | Float                    | float              | 浮点数                       |
+       | String                   | str                | 可变长度字符串               |
+       | Text                     | str                | 可变长度字符串，适合大量文本 |
+       | Boolean                  | bool               | 布尔型                       |
+       | Date                     | datetime.date      | 日期类型                     |
+       | Time                     | datetime.time      | 时间类型                     |
+       | from sqlalchemy import * |                    |                              |
+3. sqlalchemy常用属性
+    -  | **参数名**    | **描述**                         |
+       | ------------- | -------------------------------- |
+       | primary_key   | 如果设置为True，则为该列表的主键 |
+       | autoincrement | 如果设置为True，则主键自增       |
+       | unique        | 设置唯一索引                     |
+       | index         | 设置普通索引                     |
+       | nullable      | 是否允许为空                     |
+       | default       | 初始化默认值                     |
+4. 同步数据库:
+    sqlalchemy.py 执行python sqlalchemy.py 就把user模型同步到数据库了
+    ```
+    from sqlalchemy import create_engine, Column, Integer, String
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.ext.declarative import declarative_base
+    
+    
+    
+    Base = declarative_base()
+    engine = create_engine('mysql+pymysql://root:@localhost:3306/sqlalchemy_test')
+    db_session = sessionmaker(bind=engine)()
+    
+    
+    
+    def init():
+      Base.metadata.create_all(engine)
+    
+    def drop():
+      Base.metadata.drop_all()
+    
+    
+    class User(Base):
+      __tablename__ = 'user'
+    
+      id = Column(Integer, primary_key=True, autoincrement=True)
+      name = Column(String(20))
+    
+    
+    if __name__ == '__main__':
+      init()
+    ```
+5. sqlalchemy增删改查
+    ```
+    from django.http import HttpResponse
+    from .sqlalchemy import db_session,User
+    
+    def insert(request):
+        user = User(name="waixi")
+        db_session.add(user)
+        db_session.commit()
+        db_session.close()
+        return HttpResponse('增')
+    
+    def update(request):
+        user = db_session.query(User).first()
+        user.name="xiaobing"
+        db_session.commit()
+        return HttpResponse('改')
+    
+    def delete(request):
+        user = db_session.query(User).first()
+        db_session.delete(user)
+        db_session.commit()
+        return HttpResponse('删')
+    
+    def query(request):
+        user = db_session.query(User).first()
+        print(user)
+        return HttpResponse('查')
+    ```
+
+
+### 在django中使用redis
