@@ -662,3 +662,86 @@ user = User.objects.filter(diary__id=2) 就是说 查找在diary表中 id为2的
 
 
 ### 在django中使用redis
+Redis是一个基于内存的非关系型数据库。他通过key：value的形式存储。有着多种数据结构，如字符串，列表，集合等。
+通过redis我们可以进行数据缓存，防止底层数据库频繁io，提升性能
+1. 安装依赖redis，django_redis
+2. django2配置redis setting.py
+    ```
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379',
+            'OPTIONS':{
+                'CLIENT_CLASS':'django_redis.client.DefaultClient',
+                'CONNECTION_POOL_KWARGS':{"max_connections":100}
+                # "password":""
+            }
+        }
+    }
+    ```
+3. 不依赖django的配置redis
+    ```
+    import redis
+    conn = redis.Redis(host='10.0.0.10',port=6379)
+    ```
+4. 运行redis-server
+5. django中使用redis方法
+      1. 依赖django框架
+          ```
+            from django_redis import get_redis_connection
+            
+            cache = get_redis_connection('default')
+            cache.set(key,value,expire) #设置值
+            rs = cache.get(key) #获取值
+          ```
+      2. 不依赖django框架
+          ```
+            import redis
+            redis_conn = redis.Redis(host='127.0.0.1',port=6379)
+            
+            redis_conn.set(key,value,expire)
+            rs = redis_conn.get(key)
+          ```
+6. 例子
+    1. 模型
+    ```
+    from django_redis import get_redis_connection
+    from functools import wraps
+    import json
+    
+    _cache = get_redis_connection('default')
+    
+    # 缓存值
+    def cache(func):
+        @wraps(func)
+        def wrapper(obj,*args):
+            key = args[0]
+            value = _cache.get(key)
+            if value:
+                return json.loads(value)
+            rs = func(obj,*args)
+            _cache.set(key,json. dumps(rs))
+            return rs
+        return wrapper
+    
+    class User(models.Model):
+        username = models.CharField(unique=True, max_length=20, default='')
+        def __str__(self):
+            return 'user:{}'.format(self.username)
+    
+        @classmethod
+        @cache
+        def get(cls,id):
+            rs=cls.objects.get(id=id)
+            return {
+                'id':rs.id,
+                'username':rs.username
+            }
+    ```
+   2. 视图
+   ```
+    from .models import User
+    def getRedis(request):
+        user = User.get(1)
+        return JsonResponse(user)
+    ```

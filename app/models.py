@@ -1,5 +1,23 @@
 from django.db import models
+from django_redis import get_redis_connection
 
+from functools import wraps
+import json
+
+_cache = get_redis_connection('default')
+
+# 缓存值
+def cache(func):
+    @wraps(func)
+    def wrapper(obj,*args):
+        key = args[0]
+        value = _cache.get(key)
+        if value:
+            return json.loads(value)
+        rs = func(obj,*args)
+        _cache.set(key,json. dumps(rs))
+        return rs
+    return wrapper
 
 class User(models.Model):
     username = models.CharField(unique=True, max_length=20, default='')
@@ -12,6 +30,23 @@ class User(models.Model):
 
     class Meta: #创建联合索引
         index_together = ['username','phone']
+
+    def __str__(self):
+        return 'user:{}'.format(self.username)
+
+    @classmethod
+    @cache
+    def get(cls,id):
+        rs=cls.objects.get(id=id)
+        return {
+            'id':rs.id,
+            'username':rs.username,
+            'age':rs.age,
+            'email':rs.email,
+            'info':rs.info,
+            'created_time':str(rs.created_time),
+            'updated_time':str(rs.updated_time)
+        }
 
 # 与user一对一关系，表创建出id,birthday,usre_id字段
 class Userprofile(models.Model):

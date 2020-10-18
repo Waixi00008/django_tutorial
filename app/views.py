@@ -32,7 +32,9 @@ def query(request):
     # user = User.objects.raw('select * from app_user where id=1')
     return HttpResponse(user)
 
-
+def getRedis(request):
+    user = User.get(1)
+    return JsonResponse(user)
 # Create your views here.
 # def index(request):
 #     return HttpResponse('hello django')
