@@ -839,3 +839,58 @@ Redis是一个基于内存的非关系型数据库。他通过key：value的形�
    ```
    - 模板 {{form.as_table}}
    
+3. form表单处理方法
+    - 表单只处理 get 和 post
+    - 在get中，实例化表单对象，将form表单渲染到模版
+    - 在post中，实例化表单对象，并将request.POST对象传给表单
+    - Get ->  form = Auth()
+    - Post -> form = Auth(request.POST)，通过is_valid()对数据进行验证，当验证通过后，可以通过 cleaned_data[subject]获取输入的值
+4. 表单在前端页面展示方法
+    - {{form}}
+    - {{form.as_table}} 像table一样展示外面需要table标签包裹
+    - {{form.as_p}}
+    - {{form.as_ul}}
+5. 表单在前端自定义展示
+   ```
+    {% for item in form %}
+    <div>
+        <label for="{{item.id_for_label}}">
+            {{item.label}}
+        </label>
+        {{item}}
+        <p>{{item.errors.as_text}}</p>
+    </div>
+    {% endfor %}
+    <p>{{form.non_field_errors}}</p>
+   ```
+6. 内置表单字段类型
+    - from django import forms (forms.fields.CharField)
+    - 或from django.forms import fields (fields.CharField)
+    -  | **类型名称**          | **介绍**                                        |
+       | --------------------- | ----------------------------------------------- |
+       | CharField             | 文本类型                                        |
+       | EmailField            | 验证是否是有效的email格式                       |
+       | URLField              | 验证是否是有效的url地址                         |
+       | GenericIPAddressField | 验证ip类型                                      |
+       | TimeField             | 验证是否为datetime.time或指定格式的字符串       |
+       | DateField             | 验证日期格式，通过参数input_formats定义日期格式 |
+       | ChoiceField           | 选择类型，通过参数choices设置内容               |
+       | BooleanField          | 复选框，当required=True时默认勾选               |
+       | IntegerField          | 验证值是否是整型                                |
+       | FloatField            | 验证值是否是浮点类型                            |
+       | FileField             | 文件上传, allow_empty_file设置是否可为空        |
+       | ImageField            | 验证上传的文件是否是图片                        |
+7. 内置表单字段属性介绍
+    - fields.CharFields(max_length=50,required=True,error_messages={'required':'内容不能为空'})
+    -  | **属性名称**   | **介绍**                                     |
+       | -------------- | -------------------------------------------- |
+       | required       | 是否必填  默认为True                         |
+       | widget         | 设置input的type样式 更多类型fields.widget    |
+       | label          | 设置标签名                                   |
+       | initial        | 设置初始值                                   |
+       | localize       | 是否支持时间本地化，时区不同时显示响应的时间 |
+       | disabled       | 是否可编辑                                   |
+       | error_messages | 设置错误信息，字典类型，对属性错误进行说明   |
+       | max_length     | 设置最大长度                                 |
+       | min_length     | 设置最小长度                                 |
+       | validators     | 自定义验证规则，列表，内容是自定义的验证函数 |

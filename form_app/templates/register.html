@@ -7,15 +7,25 @@
 <body>
 <form action="{% url 'register' %}" method="post">
     {% csrf_token %}
-    <table>
-        {{form.as_table}}
-    </table>
-<!--    <lable>用户名:</lable>-->
-<!--    <input type="text" placeholder="用户名" name="username">-->
-<!--    <br/>-->
-<!--    <label>密码</label>-->
-<!--    <input type="password" placeholder="密码" name="password">-->
-<!--    <br/>-->
+    {% for item in form %}
+    <div>
+        <label for="{{item.id_for_label}}">
+            {{item.label}}
+        </label>
+        {{item}}
+        <p>{{item.errors.as_text}}</p>
+    </div>
+    {% endfor %}
+    <p>{{form.non_field_errors}}</p>
+    <!--    <table>-->
+    <!--        {{form.as_table}}-->
+    <!--    </table>-->
+    <!--    <lable>用户名:</lable>-->
+    <!--    <input type="text" placeholder="用户名" name="username">-->
+    <!--    <br/>-->
+    <!--    <label>密码</label>-->
+    <!--    <input type="password" placeholder="密码" name="password">-->
+    <!--    <br/>-->
     <input type="submit" value="提交">
 </form>
 </body>
