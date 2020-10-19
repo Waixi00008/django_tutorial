@@ -7,7 +7,9 @@
 <body>
 <form action="{% url 'register' %}" method="post">
     {% csrf_token %}
-    {{form.as_table}}
+    <table>
+        {{form.as_table}}
+    </table>
 <!--    <lable>用户名:</lable>-->
 <!--    <input type="text" placeholder="用户名" name="username">-->
 <!--    <br/>-->
