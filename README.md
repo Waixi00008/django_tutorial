@@ -894,3 +894,108 @@ Redis是一个基于内存的非关系型数据库。他通过key：value的形�
        | max_length     | 设置最大长度                                 |
        | min_length     | 设置最小长度                                 |
        | validators     | 自定义验证规则，列表，内容是自定义的验证函数 |
+       
+### 模型表单
+模型表单是 model层的模型与form表单结合起来，通过表单层作为中介，渲染出前端表单，并通过表单直接读写数据库
+模型表单基础模块继承于： forms.ModelForm
+Model字段类型与Form字段类型对应关系表：
+- 当model字段设置了blank=True,表单required=False
+- 表单label会设置model字段的verbose_name
+- ForeignKey由django.forms.ModelChoiceField表示， 它是一个ChoiceField，其选项是一个模型的QuerySet。
+- ManyToManyField由django.forms.ModelMultipleChoiceField表示，它是一个MultipleChoiceField，其选项为一个模型QuerySet
+
+步骤：
+1. 模型
+    ```
+    from django.db import models
+    
+    class Auth(models.Model):
+        username = models.CharField(max_length=18)
+        password = models.CharField(max_length=18)
+    
+        def __str__(self):
+            return 'username:{}'.format(self.username)
+    ```
+2. 同步到数据库 python manage.py makemigrations/migrate
+3. forms.py 模型与表单对应, 并自定义一些错误验证
+    ```
+    from django import forms
+    from .models import Auth as AuthModel
+    class AuthModelForm(forms.ModelForm):
+        class Meta:
+            model = AuthModel
+            #只把数据库的username和password做成表单form
+            fields = ['username', 'password']  # '__all__'
+            exclude = []  # 输入不专程表单字段的model字段
+            # 一下都是自定义
+            field_classes = {  # 定义字段的类型，一般会按照model的类型自动转换
+                'username': forms.CharField,
+                'password': forms.CharField
+            }
+    
+            labels = {
+                'username': '用户名',
+                'password': '密码'
+            }
+    
+            widgets = {
+                'username': forms.TextInput(
+                    attrs={'placeholder': '请输入用户名'}
+                ),
+                'password': forms.PasswordInput(
+                    attrs={'placeholder': '请输入密码'},
+                    render_value=True
+                )
+            }
+    
+            error_messages = {
+                'username': {'required': '用户名不可以为空'},
+                'password': {'min_length': '最爱哦不能低于10个字符'}
+            }
+    
+        def clean_username(self):
+            username = self.cleaned_data.get('username')
+    
+            if len(username) > 10:
+                raise forms.ValidationError('用户名最大不可超过10')
+    
+            return username
+    ```
+4. 视图
+    ```
+    from django.views.generic import View
+    from .forms import AuthModelForm
+    from .models import Auth as AuthModel
+    # 读取
+    user = AuthModel.objects.filter(pk=1).first()
+    if user:
+        form = AuthModelForm(instance=user)
+    else:
+        form = AuthModelForm()
+    return render(request, self.TEMPLATE,{'form':form})
+    
+    form = AuthModelForm(request.POST)
+    # 验证
+    if form.is_valid():
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        # 保存到数据库
+        form.save()
+    ```
+5. 模板
+    ```
+    <form action="{% url 'register' %}" method="post">
+        {% csrf_token %}
+        {% for item in form %}
+        <div>
+            <label for="{{item.id_for_label}}">
+                {{item.label}}
+            </label>
+            {{item}}
+            <p>{{item.errors.as_text}}</p>
+        </div>
+        {% endfor %}
+        <p>{{form.non_field_errors}}</p>
+        <input type="submit" value="提交">
+    </form>
+    ```

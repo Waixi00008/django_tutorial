@@ -1,6 +1,47 @@
 from django import forms
 from django.forms import fields
+from .models import Auth as AuthModel
 
+
+class AuthModelForm(forms.ModelForm):
+    class Meta:
+        model = AuthModel
+        #只把数据库的username和password做成表单form
+        fields = ['username', 'password']  # '__all__'
+        exclude = []  # 输入不专程表单字段的model字段
+        # 一下都是自定义
+        field_classes = {  # 定义字段的类型，一般会按照model的类型自动转换
+            'username': forms.CharField,
+            'password': forms.CharField
+        }
+
+        labels = {
+            'username': '用户名',
+            'password': '密码'
+        }
+
+        widgets = {
+            'username': forms.TextInput(
+                attrs={'placeholder': '请输入用户名'}
+            ),
+            'password': forms.PasswordInput(
+                attrs={'placeholder': '请输入密码'},
+                render_value=True
+            )
+        }
+
+        error_messages = {
+            'username': {'required': '用户名不可以为空'},
+            'password': {'min_length': '最爱哦不能低于10个字符'}
+        }
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+
+        if len(username) > 10:
+            raise forms.ValidationError('用户名最大不可超过10')
+
+        return username
 
 class Auth(forms.Form):
     username = fields.CharField(label="用户名", max_length=18, widget=forms.TextInput(attrs={'placeholder': '请输入用户名'}))
