@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'app.templatetags',
     'get_by_douban',
     'jinja_app',
-    'mako_app'
+    'mako_app',
+    'form_app'
 ]
 
 MIDDLEWARE = [

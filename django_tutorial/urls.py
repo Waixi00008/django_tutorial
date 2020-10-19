@@ -21,6 +21,8 @@ from jinja_app import urls as jinja_urls
 from mako_app import urls as mako_urls
 from django_sqlalchemy import urls as sqlalchemy_urls
 from mongodb_app import urls as mongodb_urls
+from form_app import urls as form_urls
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(app_urls)),
@@ -29,4 +31,5 @@ urlpatterns = [
     path('mako/test/', include(mako_urls)),
     path('sqlalchemy/', include(sqlalchemy_urls)),
     path('mongodb/', include(mongodb_urls)),
+    path('form/', include(form_urls)),
 ]

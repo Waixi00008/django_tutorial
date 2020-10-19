@@ -794,3 +794,24 @@ Redis是一个基于内存的非关系型数据库。他通过key：value的形�
             print(users)
             return HttpResponse('查')
         ```
+      
+### django中的form表单
+从web的角度来说，通过前端的表单模块填写后端服务需要的信息，
+  填写完毕后，提交给后端服务的一个工具
+表单一般分为四个部分：提交地址，提交方法，表单组件，提交按钮
+```
+<form action="{% url 'register' %}" method="post">
+    {% csrf_token %}
+    <lable>用户名:</lable>
+    <input type="text" placeholder="用户名" name="username">
+    <br/>
+    <label>密码</label>
+    <input type="password" placeholder="密码" name="password">
+    <br/>
+    <input type="submit" value="提交">
+</form>
+```
+1. Django的表单能做什么
+模拟生成前端html语言，无需手动书写表单
+对前端提交的表单信息进行验证
+但是建议自己手动去书写前端html语言，因为那样会更好控制，如css样式等
