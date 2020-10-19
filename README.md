@@ -815,3 +815,27 @@ Redis是一个基于内存的非关系型数据库。他通过key：value的形�
 模拟生成前端html语言，无需手动书写表单
 对前端提交的表单信息进行验证
 但是建议自己手动去书写前端html语言，因为那样会更好控制，如css样式等
+2. 使用django自带的表单
+    - 新建forms.py
+    ```
+    from django import forms
+    from django.forms import fields
+   
+    class Auth(forms.Form):
+        username = fields.CharField(max_length=18,required=True)
+        password = fields.CharField(widget=forms.PasswordInput)
+   ```
+   - 视图
+   ```
+   from .forms import Auth
+   def post(self,request):
+    form = Auth(request.POST)
+    if form.is_valid():
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        print('username', username)
+        print('password',password)
+    return redirect('/form/register')
+   ```
+   - 模板 {{form.as_table}}
+   
