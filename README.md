@@ -999,3 +999,49 @@ Model字段类型与Form字段类型对应关系表：
         <input type="submit" value="提交">
     </form>
     ```
+   
+### django admin
+Django admin管理后台，是一个django自带的，网站后台管理平台。他主要功能是对数据库中的数据进行增删改查的操作
+只有管理员才可以访问admin后台管理平台
+1. 进入：http://localhost:8000/admin
+2. 账号需要通过python manage.py createsuperuser创建
+3. 后台修改中文可以使用LANGUAGE_CODE = 'zh-hans' & TIME_ZONE = 'Asia/Shanghai'
+4. model各字段名优先使用verbose_name,未定义则使用变量名
+5. 样式设置
+      - | **list_display**   | **可显示的数据库字段**       | **list_display** **= [‘id’, ‘name’]** |
+        | ------------------ | ---------------------------- | ------------------------------------- |
+        | list_filter        | 右边栏过滤器                 | list_filter  = [‘name’]               |
+        | search_fileds      | 搜索                         | search_fields  = [‘name’]             |
+        | ordering           | 排序                         | ordering  = [‘id’] # 反序 ‘-id’       |
+        | list_per_page      | 每页显示数据的条数           | list_per_page  = 10                   |
+        | readonly_fields    | 只读的字段                   | readonly_fields  = [‘name’]           |
+        | date_hierarchy     | 显示时间分层  仅支持时间类型 | date_hierarchy  = ‘时间字段’          |
+        | list_display_links | 设置可编辑字段               | list_display_links  = [‘id’,‘name’]   |
+6. 自定义字段 可在model或admin中定义
+   -     ```
+            def times(self):
+                _time = time.localtime(self.created_time)
+                return time.strftime('%Y-%m-%d %H:%M:%S',_time)
+         ```
+7. 自定义表现形式
+      - ```
+            # 处理字段格式
+            def operate(self,obj):
+                return format_html('<a href="{}"/>跳转','https://www.baidu.com')
+            
+            # 处理字段表现形式 同operate
+            def image_data(self,obj):
+                return mark_safe(u'<img src="%s" width="50px" height=“50px” />'%img.url'
+        ```
+8. 二次处理数据
+      - ```
+            # 二次处理数据
+            def save_model(self,request,obj,form,change):
+                if change:
+                    obj.content = obj.content+'update'
+                else:
+                    obj.content = obj.content+'create'
+                    # print(datetime.date(2020,10,25))
+                    obj.created_time = time.time()
+                super(MessageAdmin,self).save_model(request,obj,form,change)
+        ```
