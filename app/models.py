@@ -3,6 +3,7 @@ from django_redis import get_redis_connection
 
 from functools import wraps
 import json
+import time
 
 _cache = get_redis_connection('default')
 
@@ -65,3 +66,15 @@ class Group(models.Model):
     user = models.ManyToManyField(User,related_name='group')
     name = models.CharField(max_length=20)
     created_time = models.IntegerField()
+
+class Message(models.Model):
+    content = models.TextField()
+    message_type = models.CharField(max_length=10,db_index=True)
+    created_time = models.IntegerField(default=0)
+
+    def __str__(self):
+        return 'type:{},content:{}'.format(self.message_type,self.content)
+
+    def times(self):
+        _time = time.localtime(self.created_time)
+        return time.strftime('%Y-%m-%d %H:%M:%S',_time)
